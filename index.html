@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nacional Snake 💜</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🐣 Nacional Snake 💜</h1>
+
+        <div id="tela-menu" class="tela">
+            <h2>Escolha o nível</h2>
+            <button class="botao-nivel" data-velocidade="6">Fácil</button>
+            <button class="botao-nivel" data-velocidade="10">Médio</button>
+            <button class="botao-nivel" data-velocidade="15">Difícil</button>
+        </div>
+
+        <div id="tela-jogo" class="tela escondido">
+            <div id="pontuacao">Pontos: 0</div>
+            <canvas id="canvas-jogo"></canvas>
+
+            <div id="controles-touch">
+                <button id="btn-cima">⬆️</button>
+                <div class="linha-controles">
+                    <button id="btn-esquerda">⬅️</button>
+                    <button id="btn-baixo">⬇️</button>
+                    <button id="btn-direita">➡️</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tela-fim" class="tela escondido">
+            <img id="imagem-resultado" src="" alt="Jikook">
+            <h2 id="titulo-resultado">Game Over</h2>
+            <p id="pontuacao-final">Pontuação final: 0</p>
+            <p id="mensagem-nacional">Nacional forever!</p>
+            <button id="btn-jogar-novo">Jogar de novo</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

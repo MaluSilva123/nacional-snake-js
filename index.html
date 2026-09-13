@@ -13,14 +13,14 @@
         <div id="tela-inicio" class="tela">
             <img id="foto-capa" src="imagens/jikook_capa.jpg" alt="Jikook">
             <p class="subtitulo">Um jogo feito com carinho pelo Nacional 💜</p>
+            <p id="recorde-inicio" class="recorde">Recorde: 0</p>
             <button id="btn-jogar">Jogar</button>
         </div>
 
         <div id="tela-menu" class="tela escondido">
             <h2>Escolha o nível</h2>
-            <button class="botao-nivel" data-velocidade="5">Fácil</button>
-            <button class="botao-nivel" data-velocidade="9">Médio</button>
-            <button class="botao-nivel" data-velocidade="15">Difícil</button>
+            <p id="recorde-menu" class="recorde">Recorde: 0</p>
+            <div id="lista-niveis"></div>
         </div>
 
         <div id="tela-jogo" class="tela escondido">
@@ -41,6 +41,7 @@
             <img id="imagem-resultado" src="" alt="Jikook">
             <h2 id="titulo-resultado">Game Over</h2>
             <p id="pontuacao-final">Pontuação final: 0</p>
+            <p id="mensagem-recorde"></p>
             <p id="mensagem-nacional">Nacional forever!</p>
             <button id="btn-jogar-novo">Jogar de novo</button>
         </div>

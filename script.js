@@ -6,6 +6,7 @@ const telaFim = document.getElementById('tela-fim');
 const canvas = document.getElementById('canvas-jogo');
 const ctx = canvas.getContext('2d');
 const elementoPontuacao = document.getElementById('pontuacao');
+const listaNiveis = document.getElementById('lista-niveis');
 
 // Configurações do jogo
 const TAMANHO_BLOCO = 20;
@@ -14,9 +15,14 @@ const LINHAS = 20;
 canvas.width = COLUNAS * TAMANHO_BLOCO;
 canvas.height = LINHAS * TAMANHO_BLOCO;
 
-const PONTOS_PARA_VENCER = 10;
+// Definição dos níveis: cada um tem um nome, velocidade e pontuação mínima pra desbloquear
+const NIVEIS = [
+    { nome: 'Fácil', velocidade: 6, requisito: 0 },
+    { nome: 'Médio', velocidade: 10, requisito: 5 },
+    { nome: 'Difícil', velocidade: 15, requisito: 15 }
+];
 
-let velocidadeJogo = 10;
+let velocidadeJogo = 6;
 let cobrinha = [];
 let direcao = { x: 0, y: 0 };
 let proximaDirecao = { x: 0, y: 0 };
@@ -25,7 +31,16 @@ let pontuacao = 0;
 let jogoRodando = false;
 let intervaloJogo = null;
 
-// Troca de telas
+// ---- Recorde salvo no navegador ----
+function obterRecorde() {
+    return parseInt(localStorage.getItem('nacionalSnakeRecorde')) || 0;
+}
+
+function salvarRecorde(valor) {
+    localStorage.setItem('nacionalSnakeRecorde', valor);
+}
+
+// ---- Troca de telas ----
 function mostrarTela(tela) {
     telaInicio.classList.add('escondido');
     telaMenu.classList.add('escondido');
@@ -34,7 +49,37 @@ function mostrarTela(tela) {
     tela.classList.remove('escondido');
 }
 
-// Inicia o jogo com a velocidade escolhida
+// ---- Monta os botões de nível dinamicamente, com base no recorde atual ----
+function montarListaNiveis() {
+    const recorde = obterRecorde();
+    listaNiveis.innerHTML = '';
+
+    NIVEIS.forEach(nivel => {
+        const botao = document.createElement('button');
+        botao.classList.add('botao-nivel');
+
+        const desbloqueado = recorde >= nivel.requisito;
+
+        if (desbloqueado) {
+            botao.textContent = nivel.nome;
+            botao.addEventListener('click', () => iniciarJogo(nivel.velocidade));
+        } else {
+            botao.textContent = `🔒 ${nivel.nome} (${nivel.requisito} pts)`;
+            botao.classList.add('trancado');
+            botao.disabled = true;
+        }
+
+        listaNiveis.appendChild(botao);
+    });
+}
+
+function atualizarTextosRecorde() {
+    const recorde = obterRecorde();
+    document.getElementById('recorde-inicio').textContent = `Recorde: ${recorde}`;
+    document.getElementById('recorde-menu').textContent = `Recorde: ${recorde}`;
+}
+
+// ---- Início do jogo ----
 function iniciarJogo(velocidade) {
     velocidadeJogo = velocidade;
     cobrinha = [{ x: 10, y: 10 }];
@@ -73,29 +118,27 @@ function loopJogo() {
         y: cobrinha[0].y + direcao.y
     };
 
+    // Colisão com paredes
     if (cabeca.x < 0 || cabeca.x >= COLUNAS || cabeca.y < 0 || cabeca.y >= LINHAS) {
-        finalizarJogo(false);
+        finalizarJogo();
         return;
     }
 
+    // Colisão com o próprio corpo
     for (const segmento of cobrinha) {
         if (segmento.x === cabeca.x && segmento.y === cabeca.y) {
-            finalizarJogo(false);
+            finalizarJogo();
             return;
         }
     }
 
     cobrinha.unshift(cabeca);
 
+    // Verifica se comeu a comida (sem limite de pontos!)
     if (cabeca.x === comida.x && cabeca.y === comida.y) {
         pontuacao++;
         atualizarPontuacao();
         gerarComida();
-
-        if (pontuacao >= PONTOS_PARA_VENCER) {
-            finalizarJogo(true);
-            return;
-        }
     } else {
         cobrinha.pop();
     }
@@ -139,37 +182,48 @@ function desenharJogo() {
     });
 }
 
-function finalizarJogo(venceu) {
+// ---- Fim de jogo: sempre por colisão, sem limite de pontos ----
+function finalizarJogo() {
     jogoRodando = false;
     clearInterval(intervaloJogo);
 
-    document.getElementById('imagem-resultado').src = venceu ? 'imagens/jikook_feliz.jpg' : 'imagens/jikook_triste.jpg';
-    document.getElementById('titulo-resultado').textContent = venceu ? 'Você venceu! 💜' : 'Game Over 💜';
-    document.getElementById('pontuacao-final').textContent = `Pontuação final: ${pontuacao}`;
-    document.getElementById('mensagem-nacional').textContent = venceu ? 'Nacional sempre vence! 🐰💜' : 'Nacional forever!';
+    const recordeAnterior = obterRecorde();
+    const bateuRecorde = pontuacao > recordeAnterior;
 
+    if (bateuRecorde) {
+        salvarRecorde(pontuacao);
+    }
+
+    document.getElementById('imagem-resultado').src = bateuRecorde ? 'imagens/jikook_feliz.jpg' : 'imagens/jikook_triste.jpg';
+    document.getElementById('titulo-resultado').textContent = bateuRecorde ? 'Você venceu! 💜' : 'Game Over 💜';
+    document.getElementById('pontuacao-final').textContent = `Pontuação final: ${pontuacao}`;
+
+    const mensagemRecorde = document.getElementById('mensagem-recorde');
+    if (bateuRecorde) {
+        mensagemRecorde.textContent = '🏆 Novo recorde!';
+    } else {
+        mensagemRecorde.textContent = `Recorde atual: ${recordeAnterior}`;
+    }
+
+    document.getElementById('mensagem-nacional').textContent = bateuRecorde ? 'Nacional sempre vence! 🐰💜' : 'Nacional forever!';
+
+    atualizarTextosRecorde();
     mostrarTela(telaFim);
 }
 
-// Evento: botão "Jogar" da tela inicial
+// ---- Eventos ----
 document.getElementById('btn-jogar').addEventListener('click', () => {
+    montarListaNiveis();
+    atualizarTextosRecorde();
     mostrarTela(telaMenu);
 });
 
-// Eventos: botões de nível
-document.querySelectorAll('.botao-nivel').forEach(botao => {
-    botao.addEventListener('click', () => {
-        const velocidade = parseInt(botao.dataset.velocidade);
-        iniciarJogo(velocidade);
-    });
-});
-
-// Eventos: jogar de novo
 document.getElementById('btn-jogar-novo').addEventListener('click', () => {
+    montarListaNiveis();
+    atualizarTextosRecorde();
     mostrarTela(telaMenu);
 });
 
-// Eventos: teclado (PC)
 document.addEventListener('keydown', (evento) => {
     if (!jogoRodando) return;
 
@@ -179,7 +233,6 @@ document.addEventListener('keydown', (evento) => {
     else if (evento.key === 'ArrowDown' && direcao.y === 0) proximaDirecao = { x: 0, y: 1 };
 });
 
-// Eventos: botões de toque (celular)
 document.getElementById('btn-esquerda').addEventListener('click', () => {
     if (direcao.x === 0) proximaDirecao = { x: -1, y: 0 };
 });
@@ -192,3 +245,6 @@ document.getElementById('btn-cima').addEventListener('click', () => {
 document.getElementById('btn-baixo').addEventListener('click', () => {
     if (direcao.y === 0) proximaDirecao = { x: 0, y: 1 };
 });
+
+// Inicializa os textos de recorde assim que a página carrega
+atualizarTextosRecorde();

@@ -47,7 +47,7 @@ h1 {
     background-color: #9b59b6;
     color: #ffffff;
     cursor: pointer;
-    width: 200px;
+    width: 220px;
     transition: background-color 0.2s, transform 0.1s;
 }
 
@@ -57,6 +57,28 @@ h1 {
 
 .botao-nivel:active, #btn-jogar-novo:active {
     transform: scale(0.96);
+}
+
+.botao-nivel.trancado {
+    background-color: #4a3a55;
+    color: #a89bb0;
+    cursor: not-allowed;
+}
+
+.botao-nivel.trancado:hover {
+    background-color: #4a3a55;
+}
+
+#lista-niveis {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.recorde {
+    color: #f1c40f;
+    font-weight: bold;
 }
 
 #pontuacao {
@@ -110,6 +132,11 @@ h1 {
 
 #titulo-resultado {
     font-size: 2rem;
+}
+
+#mensagem-recorde {
+    font-weight: bold;
+    color: #f1c40f;
 }
 
 #mensagem-nacional {

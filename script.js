@@ -1,4 +1,5 @@
 // Elementos da página
+const telaInicio = document.getElementById('tela-inicio');
 const telaMenu = document.getElementById('tela-menu');
 const telaJogo = document.getElementById('tela-jogo');
 const telaFim = document.getElementById('tela-fim');
@@ -26,6 +27,7 @@ let intervaloJogo = null;
 
 // Troca de telas
 function mostrarTela(tela) {
+    telaInicio.classList.add('escondido');
     telaMenu.classList.add('escondido');
     telaJogo.classList.add('escondido');
     telaFim.classList.add('escondido');
@@ -71,13 +73,11 @@ function loopJogo() {
         y: cobrinha[0].y + direcao.y
     };
 
-    // Colisão com paredes
     if (cabeca.x < 0 || cabeca.x >= COLUNAS || cabeca.y < 0 || cabeca.y >= LINHAS) {
         finalizarJogo(false);
         return;
     }
 
-    // Colisão com o próprio corpo
     for (const segmento of cobrinha) {
         if (segmento.x === cabeca.x && segmento.y === cabeca.y) {
             finalizarJogo(false);
@@ -87,7 +87,6 @@ function loopJogo() {
 
     cobrinha.unshift(cabeca);
 
-    // Verifica se comeu a comida
     if (cabeca.x === comida.x && cabeca.y === comida.y) {
         pontuacao++;
         atualizarPontuacao();
@@ -108,11 +107,9 @@ function desenharJogo() {
     ctx.fillStyle = '#2a1740';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Desenha a comida (Jungkook)
     ctx.font = `${TAMANHO_BLOCO}px Arial`;
     ctx.fillText('🐰', comida.x * TAMANHO_BLOCO, comida.y * TAMANHO_BLOCO + TAMANHO_BLOCO);
 
-    // Desenha a cobrinha-pintinho
     cobrinha.forEach((segmento, indice) => {
         const centroX = segmento.x * TAMANHO_BLOCO + TAMANHO_BLOCO / 2;
         const centroY = segmento.y * TAMANHO_BLOCO + TAMANHO_BLOCO / 2;
@@ -153,6 +150,11 @@ function finalizarJogo(venceu) {
 
     mostrarTela(telaFim);
 }
+
+// Evento: botão "Jogar" da tela inicial
+document.getElementById('btn-jogar').addEventListener('click', () => {
+    mostrarTela(telaMenu);
+});
 
 // Eventos: botões de nível
 document.querySelectorAll('.botao-nivel').forEach(botao => {

@@ -15,6 +15,12 @@ const LINHAS = 20;
 canvas.width = COLUNAS * TAMANHO_BLOCO;
 canvas.height = LINHAS * TAMANHO_BLOCO;
 
+// Estrelinhas fixas do fundo (geradas uma única vez)
+const estrelasFixas = Array.from({ length: 25 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * 130
+}));
+
 // Definição dos níveis: cada um tem um nome, velocidade e pontuação mínima pra desbloquear
 const NIVEIS = [
     { nome: 'Fácil', velocidade: 6, requisito: 0 },
@@ -146,9 +152,81 @@ function loopJogo() {
     desenharJogo();
 }
 
-function desenharJogo() {
-    ctx.fillStyle = '#2a1740';
+// ---- Fundo temático (roxo mágico, castelo, lanternas, estrelas) ----
+function desenharFundoTematico() {
+    const gradiente = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradiente.addColorStop(0, '#78329a');
+    gradiente.addColorStop(1, '#1e0f2d');
+    ctx.fillStyle = gradiente;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = 'rgba(120, 70, 150, 0.25)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx <= canvas.width; gx += TAMANHO_BLOCO) {
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, canvas.height);
+        ctx.stroke();
+    }
+    for (let gy = 0; gy <= canvas.height; gy += TAMANHO_BLOCO) {
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(canvas.width, gy);
+        ctx.stroke();
+    }
+
+    const meio = canvas.width / 2;
+
+    const brilho = ctx.createRadialGradient(meio, 70, 5, meio, 70, 55);
+    brilho.addColorStop(0, 'rgba(255, 200, 120, 0.35)');
+    brilho.addColorStop(1, 'rgba(255, 200, 120, 0)');
+    ctx.fillStyle = brilho;
+    ctx.fillRect(meio - 60, 15, 120, 120);
+
+    ctx.fillStyle = '#140a23';
+    ctx.beginPath();
+    ctx.moveTo(meio - 70, 120);
+    ctx.lineTo(meio - 70, 75);
+    ctx.lineTo(meio - 55, 75);
+    ctx.lineTo(meio - 55, 52);
+    ctx.lineTo(meio - 40, 52);
+    ctx.lineTo(meio - 40, 36);
+    ctx.lineTo(meio - 25, 36);
+    ctx.lineTo(meio - 25, 60);
+    ctx.lineTo(meio, 16);
+    ctx.lineTo(meio + 25, 60);
+    ctx.lineTo(meio + 25, 36);
+    ctx.lineTo(meio + 40, 36);
+    ctx.lineTo(meio + 40, 52);
+    ctx.lineTo(meio + 55, 52);
+    ctx.lineTo(meio + 55, 75);
+    ctx.lineTo(meio + 70, 75);
+    ctx.lineTo(meio + 70, 120);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#ffbe5a';
+    for (let lx = 15; lx < canvas.width - 15; lx += 40) {
+        ctx.beginPath();
+        ctx.arc(lx, 140, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#785828';
+        ctx.beginPath();
+        ctx.moveTo(lx, 140);
+        ctx.lineTo(lx, 134);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = '#ffffff';
+    estrelasFixas.forEach(estrela => {
+        ctx.beginPath();
+        ctx.arc(estrela.x, estrela.y, 1, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+function desenharJogo() {
+    desenharFundoTematico();
 
     ctx.font = `${TAMANHO_BLOCO}px Arial`;
     ctx.fillText('🐰', comida.x * TAMANHO_BLOCO, comida.y * TAMANHO_BLOCO + TAMANHO_BLOCO);
